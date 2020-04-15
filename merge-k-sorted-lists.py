@@ -32,7 +32,14 @@ class Solution:
                         heapq.heappush(heap, lists[i].val)
                         #print(heap)
                         lists[i] = lists[i].next;
+                else:
+                  nc += 1;            
             if (len(heap) == 0):
                 return rhead.next;
             rtail.next = ListNode(heapq.heappop(heap))
-            rtail = rtail.next   
+            rtail = rtail.next            
+            if (nc == len(lists)):
+                while (len(heap) != 0):
+                    rtail.next = ListNode(heapq.heappop(heap))
+                    rtail = rtail.next   
+                return rhead.next  
