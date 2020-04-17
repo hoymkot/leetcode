@@ -7,25 +7,26 @@
 
 class Solution:
     def mergeTwoLists(self, l1: ListNode, l2: ListNode) -> ListNode:
-        head = ListNode(-1);
-        tail = head
-        while (l1 != None and l2 != None):
-            if (l1.val <= l2.val):
-                tail.next = ListNode(l1.val);
-                tail = tail.next;
-                l1 = l1.next
-            else: 
-                tail.next = ListNode(l2.val);
-                tail = tail.next;
-                l2 = l2.next
-        if (l1 == None ):
-            while (l2 != None):
-                tail.next = ListNode(l2.val);
-                tail = tail.next;
-                l2 = l2.next
+        if (l1 == None):
+            return l2
+        if (l2 == None):
+            return l1;
+        if (l1.val <= l2.val):
+            head = l1
+            other = l2
         else:
-            while (l1 != None):
-                    tail.next = ListNode(l1.val);
-                    tail = tail.next;
-                    l1 = l1.next        
-        return head.next
+            head = l2
+            other = l1            
+        tail = head           
+        while other != None:
+            if (tail.next == None):
+                tail.next = other
+                return head            
+            if (other.val <= tail.next.val):
+                node = other
+                other = other.next
+                node.next = tail.next
+                tail.next = node
+            tail = tail.next
+            
+        return head
