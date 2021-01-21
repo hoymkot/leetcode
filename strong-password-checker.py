@@ -1,6 +1,6 @@
 # Leetcode strong password checker
 # https://leetcode.com/problems/strong-password-checker/
-
+# make it run in 12 ms  92.96 %
 class Solution(object):
     def strongPasswordChecker(self, password):
         """
