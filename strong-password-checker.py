@@ -22,21 +22,22 @@ class Solution(object):
         if self.checkContain(pwd, digit):
             self.miss = self.miss + 1
 
+        ans = self.findRepeat(pwd)
 
         if 6 <= len(pwd) and len(pwd) <= 20:
             # no need to insert/delete
             # min digit requirement can merge with repeating character replacement
-            repeat = self.checkRepeat(pwd)
+            repeat = self.getReplacement(ans)
             return max(repeat, self.miss)
         # need some inserts to make len(pwd) >= 6
         # insert, repeat, missing char can all be fixed at the same time
         if len(pwd) < 6:
-            repeat = self.checkRepeat(pwd)
+            repeat = self.getReplacement(ans)
             return max(6 - len(pwd), self.miss, repeat)
         if len(pwd) > 20:
             self.delete = len(pwd) - 20
             self.step = 0
-            ans = self.findRepeat(pwd)
+
             while self.delete > 0 and len(ans[0]) > 0:
                 self.delete = self.delete - 1
                 self.step = self.step + 1
@@ -112,20 +113,3 @@ class Solution(object):
             if c in chars:
                 return 0
         return 1;
-
-    #O(n)
-    def checkRepeat(self, pwd):
-        if (len(pwd) < 3):
-            return 0
-        p1 = pwd[0]
-        p2 = pwd[1]
-        step = 0
-        for c in pwd[2:]:
-            if (c == p2 and c == p1):
-                step = step + 1;
-                p1 = None
-                p2 = None
-            else:
-                p1 = p2
-                p2 = c
-        return step
