@@ -13,86 +13,107 @@ class Solution(object):
         upper = lower.upper()
         digit = "1234567890"
 
-        self.count = 0
+        self.miss = 0
 
         if self.checkContain(pwd, lower):
-            self.count = self.count + 1
+            self.miss = self.miss + 1
         if self.checkContain(pwd, upper):
-            self.count = self.count + 1
+            self.miss = self.miss + 1
         if self.checkContain(pwd, digit):
-            self.count = self.count + 1
+            self.miss = self.miss + 1
 
 
         if 6 <= len(pwd) and len(pwd) <= 20:
             # no need to insert/delete
             # min digit requirement can merge with repeating character replacement
             repeat = self.checkRepeat(pwd)
-            return max(repeat, self.count)
+            return max(repeat, self.miss)
         # need some inserts to make len(pwd) >= 6
         # insert, repeat, missing char can all be fixed at the same time
         if len(pwd) < 6:
             repeat = self.checkRepeat(pwd)
-            return max(6 - len(pwd), self.count, repeat)
+            return max(6 - len(pwd), self.miss, repeat)
         if len(pwd) > 20:
             self.delete = len(pwd) - 20
             self.step = 0
-            pwd, solved = self.tradeDelete(pwd, 0)
-            if solved == True:
-                return pwd # answer
-            pwd, solved = self.tradeDelete(pwd, 1)
-            if solved == True:
-                return pwd # answer
-            after, solved = self.tradeDelete(pwd, 2)
-            while solved != True and len(after) < len(pwd):
-                pwd = after
-                after, solved = self.tradeDelete(pwd, 2)
-            if solved:
-                return after # answer
+            ans = self.findRepeat(pwd)
+            while self.delete > 0 and len(ans[0]) > 0:
+                self.delete = self.delete - 1
+                self.step = self.step + 1
+                new = ans[0].pop() - 1
+                if new > 2:
+                    ans[2].append(new)
+
+            if self.delete == 0:
+                return max(self.getReplacement(ans), self.miss) + self.step
+
+            while self.delete > 1 and len(ans[1]) > 0:
+                self.delete = self.delete - 2
+                self.step = self.step + 2
+                new = ans[1].pop() - 2
+                if new > 2:
+                    ans[2].append(new)
+
+            if self.delete == 1:
+                self.step = self.step + 1
+                self.delete = self.delete - 1
+
+            if self.delete == 0:
+                return max(self.getReplacement(ans), self.miss) + self.step
+
+            while self.delete > 2 and len(ans[2]) > 0:
+                self.delete = self.delete - 3
+                self.step = self.step + 3
+                new = ans[2].pop() - 3
+                if new > 2:
+                    ans[2].append(new)
+
+            if self.delete > 0:
+                self.step = self.step + self.delete
+                self.delete = 0
+
+            if self.delete == 0:
+                return max(self.getReplacement(ans), self.miss) + self.step
+
+
+    def getReplacement(self, ans):
+        r = 0
+        for i in ans[0]:
+            r = r + int(i/3)
+        for i in ans[1]:
+            r = r + int(i/3)
+        for i in ans[2]:
+            r = r + int(i/3)
+        return r
+
+    #O(n)
+    def findRepeat(self, pwd):
+        c = str(pwd[0])
+        count = 1
+        ans = [[],[],[]]
+        for i in pwd[1:]:
+            i = str(i)
+            if i == c:
+                count = count + 1
             else:
-                return self.count + self.step + self.delete
+                if count >2 :
+                    idx = count % 3
+                    ans[idx].append(count)
+                count = 1
+                c = i
+        if  count > 2  :
+            idx = count % 3
+            ans[idx].append(count)
+        return ans;
 
-
-    def tradeDelete(self, pwd, mod):
-        i = 0
-        while i < len(pwd):
-            next = self.findRepeat(pwd, i)
-            temp = pwd[i:next]
-            if (len(temp) > 2):
-                if len(temp) % 3 == mod:
-                    if self.delete <= (mod+1):
-                        pwd = pwd[0:i] + temp[self.delete:] + pwd[next:]
-                        self.step = self.step + self.delete
-                        self.delete = 0
-                        repeat = self.checkRepeat(pwd)
-                        return max(repeat, self.count) + self.step, True
-                        # done
-                    else:
-                        prev = pwd[0:i] + temp[(mod+1):]
-                        pwd = prev + pwd[next:]
-                        self.delete = self.delete - (mod+1)
-                        self.step = self.step + (mod+1)
-                        next = len(prev)
-            i = next;
-        return pwd, False
-
-    def findRepeat(self, pwd, start):
-        i = start
-        if i < len(pwd):
-            c = str(pwd[i])
-            temp = c
-            for j in range(i + 1, len(pwd)):
-                if str(pwd[j]) != c:
-                    return j
-            return len(pwd)
-        else:
-            return len(pwd)
-
+    #O(n)
     def checkContain(self, pwd, chars):
         for c in pwd:
             if c in chars:
                 return 0
         return 1;
 
+    #O(n)
     def checkRepeat(self, pwd):
         if (len(pwd) < 3):
             return 0
